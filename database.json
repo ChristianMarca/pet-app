@@ -1,0 +1,12 @@
+{
+  "dev": {
+    "driver": "pg",
+    "user": "postgres",
+    "password": "postgres",
+    "host": "localhost",
+    "database": "db_name",
+    "port": "5432",
+    "sql-file": true,
+    "multipleStatements": true
+  }
+}
