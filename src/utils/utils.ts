@@ -1,5 +1,7 @@
 import { IUserData, IUserDataCounter } from '../controllers/user.controller';
 import { IUserDB, IUserCountDB } from '../db/models/users.model';
+import { IPostDB } from '../controllers/crud.models/post';
+import { IPost } from '../controllers/post.controller';
 
 export const sanitizeOutput = (outputObj: IUserDB, includeId = false): IUserData => {
     const {
@@ -24,4 +26,9 @@ export const filterValuesOnObject = (obj: { [key: string]: any }, validTypes: st
         const [key, value] = curr;
         return validTypes.includes(typeof value) ? { ...acc, [key]: value } : acc;
     }, {});
+};
+
+export const sanitizePostOutput = (postInput: IPostDB): IPost => {
+    const { _id, user_id: userId, post, title } = postInput;
+    return { userId, content: { title, body: post.body } };
 };

@@ -9,7 +9,9 @@ import {
     createNewLoginUser,
     updateUserOnDB,
     getUserByCustomParameters,
+    deleteUserByUserIdOnDb,
 } from './crud.models/user';
+import { deleteLoginByUserIdDb } from './crud.models/login';
 import { ILogin } from './login.controller';
 import { Users } from '../db/models/users.model';
 import { Login } from '../db/models';
@@ -24,6 +26,13 @@ export type SortType = {
     name?: sortTypeValues;
     lastName?: sortTypeValues;
 };
+
+export type PaginationRequest = {
+    pageNumber?: number;
+    pageSize?: number;
+};
+
+export interface IUserGetAll extends SortType, PaginationRequest {}
 
 export type LastNameQueryParams = {
     lastName?: string | string[];
@@ -49,6 +58,11 @@ export interface IUserResponse extends IUserLogin {
 export interface IUserDataCounter {
     lastName?: string;
     nTimes: string;
+}
+
+export interface PaginationResponse {
+    pagination: { [key: string]: number };
+    users: IUserData[];
 }
 
 export const createUser = (user: IUserLogin): Promise<IUserData> => {
@@ -99,7 +113,12 @@ export const getUserByUsername = async (username: string): Promise<IUserData | P
     return user ? sanitizeOutput(user.get({ plain: true }), true) : {};
 };
 
-export const getUsers = async ({ name, lastName }: SortType): Promise<IUserData[]> => {
+export const getUsers = async ({
+    name,
+    lastName,
+    pageNumber = 1,
+    pageSize = 10,
+}: IUserGetAll): Promise<PaginationResponse> => {
     const sortItems: OrderItem[] = [];
     if (name) {
         sortItems.push(['name', name]);
@@ -108,8 +127,30 @@ export const getUsers = async ({ name, lastName }: SortType): Promise<IUserData[
         sortItems.push(['last_name', lastName]);
     }
 
-    const userList = sortItems.length ? await getUsersSortedByFieldOnDb(Users, sortItems) : await getUsersOnDb(Users);
-    return userList.map((user: Model) => sanitizeOutput(user.get({ plain: true })));
+    if (!sortItems.length) {
+        sortItems.push(['user_id', 'ASC']);
+    }
+
+    const paginationData = {
+        pageNumber: typeof pageNumber === 'string' ? parseInt(pageNumber, 10) : pageNumber,
+        pageSize: typeof pageSize === 'string' ? parseInt(pageSize, 10) : pageSize,
+    };
+
+    const userList: { [key: string]: any } = sortItems.length
+        ? await getUsersSortedByFieldOnDb(Users, sortItems, paginationData.pageNumber, paginationData.pageSize)
+        : await getUsersOnDb(Users, paginationData.pageNumber, paginationData.pageSize);
+
+    const pagination = {
+        pageNumber: paginationData.pageNumber,
+        pageSize: paginationData.pageSize,
+        totalItems: userList?.count,
+        pages: Math.ceil(userList?.count / pageSize),
+    };
+
+    return {
+        pagination,
+        users: userList?.rows?.map((user: Model) => sanitizeOutput(user.get({ plain: true }))),
+    };
 };
 
 export const getUsersByLastName = async ({
@@ -123,4 +164,22 @@ export const getUsersByLastName = async ({
         sanitizeOutputCounter(user.get({ plain: true })),
     );
     return { userLastNameCount: userLastNameCountSanitized, userList: userListSanitized };
+};
+
+export const deleteUserByUserId = async ({ userId = '' }: { userId?: string }) => {
+    return db.transaction(async (trx) => {
+        try {
+            const deletedLogin = await deleteLoginByUserIdDb(userId, Login);
+            const deleteUser = await deleteUserByUserIdOnDb(Users, userId);
+
+            if (deleteUser !== 1 || deletedLogin !== 1) {
+                await trx.rollback();
+                return { msg: "Couldn't delete the user", status: 400 };
+            }
+            return { msg: 'Deleted' };
+        } catch (error) {
+            await trx.rollback();
+            return error;
+        }
+    });
 };

@@ -1,6 +1,12 @@
 import 'mocha';
 import { expect } from 'chai';
-import { createUser, getUserByUsername, getUsers, getUsersByLastName } from '../src/controllers/user.controller';
+import {
+    createUser,
+    getUserByUsername,
+    getUsers,
+    getUsersByLastName,
+    deleteUserByUserId,
+} from '../src/controllers/user.controller';
 import { db, truncateAll } from '../src/db';
 import { Users } from '../src/db/models';
 
@@ -73,15 +79,22 @@ describe('User CRUD', () => {
         };
 
         await createUser(userData);
-        const users = await getUsers({});
+        const usersPagination = await getUsers({});
 
-        // tslint:disable-next-line:no-unused-expression
-        expect(users).to.be.an('array').that.is.not.empty;
+        expect(usersPagination).to.be.an('object').that.is.not.empty;
+        expect(usersPagination).to.have.property('pagination');
+        expect(usersPagination).to.have.property('users');
+        const { pagination, users } = usersPagination;
+        console.log('=>>', usersPagination);
         expect(users[0]).to.have.property('username');
         expect(users[0]).to.have.property('name');
         expect(users[0]).to.have.property('lastName');
         expect(users[0]).to.have.property('createdAt');
         expect(users[0]).to.have.property('updatedAt');
+        expect(pagination).to.have.property('pageNumber');
+        expect(pagination).to.have.property('pageSize');
+        expect(pagination).to.have.property('totalItems');
+        expect(pagination).to.have.property('pages');
     });
 
     it('should get all users sorted by name (ASC)', async () => {
@@ -102,10 +115,11 @@ describe('User CRUD', () => {
 
         await createUser(userData);
         await createUser(userData2);
-        const users = await getUsers({ name: 'ASC' });
+        const usersPagination = await getUsers({ name: 'ASC' });
 
         // tslint:disable-next-line:no-unused-expression
-        expect(users).to.be.an('array').that.is.not.empty;
+        expect(usersPagination).to.be.an('object').that.is.not.empty;
+        const { users } = usersPagination;
         expect(users[0]).to.have.property('username');
         expect(users[0]).to.have.property('name');
         expect(users[0]).to.have.property('lastName');
@@ -141,5 +155,22 @@ describe('User CRUD', () => {
         expect(users.userLastNameCount).to.an('array').that.is.not.empty;
         expect(users.userLastNameCount[0]).to.have.property('lastName');
         expect(users.userLastNameCount[0]).to.have.property('nTimes');
+    });
+
+    it('should delete user by userId', async () => {
+        const userData = {
+            username: 'new username',
+            name: 'new fake name',
+            lastName: 'Fake Last Name',
+            email: 'test@hotmail.com',
+            password: '1234',
+        };
+
+        await createUser(userData);
+        const user = await getUserByUsername(userData.username);
+        const deletedUser = await deleteUserByUserId({ userId: user.userId });
+        const userAfterDelete = await getUserByUsername(userData.username);
+        expect(userAfterDelete).to.be.empty;
+        expect(deletedUser).to.have.property('msg', 'Deleted');
     });
 });
