@@ -10,6 +10,10 @@ export const getLoginByEmail = async (email: string, loginModel: ModelCtor<Model
     return await loginModel.findOne({ where: { email } });
 };
 
+export const deleteLoginByUserIdDb = async (userId: string, loginModel: ModelCtor<Model>) => {
+    return await loginModel.destroy({ where: { user_id: userId } });
+};
+
 // export const getTokenFromDb = (authorization: string) => {
 //     return new Promise<{ [key: string]: string | boolean | { [k: string]: string } }>((resolve, reject) => {
 //         redisClient.get(authorization, async (err, reply) => {

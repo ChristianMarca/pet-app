@@ -48,12 +48,23 @@ export const getOneUserByUsernameOnDb = async (
     return await usersModel.findOne({ where: { [field]: value } });
 };
 
-export const getUsersOnDb = async (usersModel: ModelCtor<Model>): Promise<Model[]> => {
-    return await usersModel.findAll();
+export const getUsersOnDb = async (
+    usersModel: ModelCtor<Model>,
+    pageNumber: number,
+    pageSize: number,
+): Promise<{ rows: Model<ModelAttributes>[]; count: number }> => {
+    const offset = pageNumber ? pageNumber - 1 : 1;
+    return await usersModel.findAndCountAll({ offset, limit: pageSize, order: ['user_id', 'ASC'] });
 };
 
-export const getUsersSortedByFieldOnDb = async (usersModel: ModelCtor<Model>, sort: OrderItem[]): Promise<Model[]> => {
-    return await usersModel.findAll({ order: sort });
+export const getUsersSortedByFieldOnDb = async (
+    usersModel: ModelCtor<Model>,
+    sort: OrderItem[],
+    pageNumber: number,
+    pageSize: number,
+): Promise<{ rows: Model<ModelAttributes>[]; count: number }> => {
+    const pageNumberFixed = pageNumber ? pageNumber - 1 : 1;
+    return await usersModel.findAndCountAll({ order: sort, offset: pageNumberFixed * pageSize, limit: pageSize });
 };
 
 export const getUsersByUsernameOnDb = async (
@@ -74,4 +85,8 @@ export const getGroupCountUsersByUsernameOnDb = async (
         where: { [field]: value },
         group: [field],
     });
+};
+
+export const deleteUserByUserIdOnDb = async (usersModel: ModelCtor<Model>, userId: string) => {
+    return await usersModel.destroy({ where: { user_id: userId } });
 };

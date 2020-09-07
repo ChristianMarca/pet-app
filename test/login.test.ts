@@ -29,7 +29,7 @@ describe('Login CRUD', () => {
             name: 'new fake name',
             lastName: 'Fake Last Name',
             email: 'test@hotmail.com',
-            password: '1234',
+            password: '1234@Autes',
         };
 
         const createdUser = await createUser(userData);

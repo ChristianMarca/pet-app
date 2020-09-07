@@ -51,7 +51,7 @@ const getAuthToken = async ({ authorization }: { authorization: string }) => {
             const loginUserData = loginData.get({ plain: true });
             const userData = await getOneUserByUsernameOnDb(Users, 'user_id', loginUserData.user_id);
 
-            reply === '1'
+            reply
                 ? resolve({
                       success: true,
                       token: authorization,
@@ -81,7 +81,7 @@ export const signAuthentication = async ({
     email,
     password,
 }: ILogin): Promise<{ [key: string]: string | boolean | number }> => {
-    return authorization
+    return authorization && authorization !== 'undefined'
         ? getAuthToken({ authorization })
         : loginUser({ email, password })
               .then((data) =>

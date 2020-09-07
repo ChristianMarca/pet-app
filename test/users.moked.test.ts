@@ -64,28 +64,28 @@ describe.skip('User CRUD', () => {
         expect(createdUser).to.eql({});
     });
 
-    it('should get all users', async () => {
-        const users = await getUsers({});
+    // it('should get all users', async () => {
+    //     const users = await getUsers({});
+    //
+    //     expect(users).to.be.an('array').that.is.not.empty;
+    //     expect(users[0]).to.have.property('username');
+    //     expect(users[0]).to.have.property('name');
+    //     expect(users[0]).to.have.property('lastName');
+    //     expect(users[0]).to.have.property('createdAt');
+    //     expect(users[0]).to.have.property('updatedAt');
+    // });
 
-        expect(users).to.be.an('array').that.is.not.empty;
-        expect(users[0]).to.have.property('username');
-        expect(users[0]).to.have.property('name');
-        expect(users[0]).to.have.property('lastName');
-        expect(users[0]).to.have.property('createdAt');
-        expect(users[0]).to.have.property('updatedAt');
-    });
-
-    it('should get all users sorted by name (DESC)', async () => {
-        // TODO FIND THE WAY TO INSERT MANY ROW TO TEST TE LOGIC
-        const users = await getUsers({ name: 'DESC' });
-
-        expect(users).to.be.an('array').that.is.not.empty;
-        expect(users[0]).to.have.property('username');
-        expect(users[0]).to.have.property('name');
-        expect(users[0]).to.have.property('lastName');
-        expect(users[0]).to.have.property('createdAt');
-        expect(users[0]).to.have.property('updatedAt');
-    });
+    // it('should get all users sorted by name (DESC)', async () => {
+    //     // TODO FIND THE WAY TO INSERT MANY ROW TO TEST TE LOGIC
+    //     const users = await getUsers({ name: 'DESC' });
+    //
+    //     expect(users).to.be.an('array').that.is.not.empty;
+    //     expect(users[0]).to.have.property('username');
+    //     expect(users[0]).to.have.property('name');
+    //     expect(users[0]).to.have.property('lastName');
+    //     expect(users[0]).to.have.property('createdAt');
+    //     expect(users[0]).to.have.property('updatedAt');
+    // });
 
     it('should get all users and the repetition count', async () => {
         const users = await getUsersByLastName({ lastName: ['Fake Last Name'] });
