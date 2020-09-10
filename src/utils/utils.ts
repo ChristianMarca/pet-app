@@ -29,6 +29,6 @@ export const filterValuesOnObject = (obj: { [key: string]: any }, validTypes: st
 };
 
 export const sanitizePostOutput = (postInput: IPostDB): IPost => {
-    const { _id, user_id: userId, post, title } = postInput;
-    return { userId, content: { title, body: post.body } };
+    const { _id: postId, user_id: userId, post, title } = postInput;
+    return { userId, postId, content: { title, body: post.body } };
 };

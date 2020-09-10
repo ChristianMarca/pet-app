@@ -85,7 +85,6 @@ describe('User CRUD', () => {
         expect(usersPagination).to.have.property('pagination');
         expect(usersPagination).to.have.property('users');
         const { pagination, users } = usersPagination;
-        console.log('=>>', usersPagination);
         expect(users[0]).to.have.property('username');
         expect(users[0]).to.have.property('name');
         expect(users[0]).to.have.property('lastName');

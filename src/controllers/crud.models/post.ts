@@ -29,12 +29,29 @@ export const getPostsOnDb = async (
     pageNumber: number,
     pageSize: number,
 ): Promise<{ rows: Model<ModelAttributes>[]; count: number }> => {
-    const offset = pageNumber ? pageNumber - 1 : 1;
-    const baseQuery = { offset, limit: pageSize, order: ['_id', 'ASC'] };
-    const query = userId || typeof userId === 'string' ? { where: { user_id: userId }, ...baseQuery } : baseQuery;
-    // if (userId && typeof userId === 'string') {
-    //     query = { ...query, where: { user_id: userId } };
-    // }
-    console.log('->>', query, userId);
+    const offsetFixed = pageNumber ? pageNumber - 1 : 1;
+
+    const baseQuery = { offset: offsetFixed * pageSize, limit: pageSize, order: [['_id', 'ASC']] };
+    const query: { [key: string]: any } =
+        userId || typeof userId === 'string' ? { where: { user_id: userId }, ...baseQuery } : baseQuery;
+
     return await postsModel.findAndCountAll(query);
+};
+
+export const updatePostOnDB = async (
+    post: { [key: string]: any },
+    postId: string | number,
+    postModel: ModelCtor<Model>,
+): Promise<[number, Model<ModelAttributes>[]]> => {
+    let updateData: any = post.title ? { title: post.title } : {};
+    updateData = post.body ? { ...updateData, post: { body: post.body } } : updateData;
+
+    return await postModel.update(
+        { ...updateData, updated_at: new Date() },
+        { where: { _id: postId }, returning: true },
+    );
+};
+
+export const deletePostByIdOnDb = async (postsModel: ModelCtor<Model>, postId: string) => {
+    return await postsModel.destroy({ where: { _id: postId } });
 };
