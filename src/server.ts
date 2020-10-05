@@ -22,7 +22,7 @@ app.use('/users', userRouter);
 app.use('/login', loginRouter);
 app.use('/logout', logoutRouter);
 app.use('/posts', postRouter);
-app.use('/relationship', relationshipRouter);
+app.use('/relationships', relationshipRouter);
 
 app.use((req: Request, res: Response) => {
     res.status(404).json({ msg: "Url didn't find" });

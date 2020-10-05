@@ -149,7 +149,7 @@ export const getUsers = async ({
 
     return {
         pagination,
-        users: userList?.rows?.map((user: Model) => sanitizeOutput(user.get({ plain: true }))),
+        users: userList?.rows?.map((user: Model) => sanitizeOutput(user.get({ plain: true }), true)),
     };
 };
 

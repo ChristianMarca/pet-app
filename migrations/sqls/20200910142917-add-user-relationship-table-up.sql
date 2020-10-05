@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS relationship (
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_user FOREIGN KEY(user_id) REFERENCES users(user_id),
-    CONSTRAINT fk_followed_user FOREIGN KEY(user_id) REFERENCES users(user_id)
+    CONSTRAINT fk_followed_user FOREIGN KEY(followed_user_id) REFERENCES users(user_id)
 );
 
 COMMIT;
